@@ -27,9 +27,10 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_gravity="center"
-            android:layout_margin="5dp"
+            android:layout_margin="7dp"
             android:layout_weight="35"
-            android:background="@color/white"
+            android:textSize="18dp"
+            android:background="@drawable/round_corner"
 
             android:textAlignment="center" />
 
@@ -85,9 +86,10 @@
             android:id="@+id/match_topname_txt"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:background="@color/white"
+            android:background="@drawable/border"
             android:textAlignment="center"
             android:gravity="center"
+
             android:layout_weight="60"
             android:text="player1" />
 
@@ -96,9 +98,9 @@
             android:id="@+id/match_setscore_txt"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_marginLeft="2dp"
+
             android:textAlignment="center"
-            android:background="@color/white"
+            android:background="@drawable/border"
             android:gravity="center"
             android:layout_weight="20"
             android:text="TextView" />
@@ -108,11 +110,11 @@
             android:id="@+id/match_score_txt"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_marginLeft="3dp"
+
             android:textAlignment="center"
             android:gravity="center"
             android:layout_weight="20"
-            android:background="@color/white"
+            android:background="@drawable/border"
             android:text="TextView" />
 
 
@@ -125,14 +127,14 @@
         android:layout_weight="7"
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp"
-        android:layout_marginTop="5dp"
+
         android:weightSum="100">
 
         <TextView
             android:id="@+id/match_topname2_txt"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:background="@color/white"
+            android:background="@drawable/border"
             android:textAlignment="center"
             android:gravity="center"
             android:layout_weight="60"
@@ -141,9 +143,9 @@
         <TextView
             android:id="@+id/match_setscore2_txt"
             android:layout_width="0dp"
+            android:background="@drawable/border"
             android:layout_height="match_parent"
-            android:background="@color/white"
-            android:layout_marginLeft="2dp"
+
             android:gravity="center"
             android:layout_weight="20"
             android:textAlignment="center"
@@ -152,10 +154,10 @@
         <TextView
             android:id="@+id/match_score2_txt"
             android:layout_width="0dp"
-            android:layout_marginLeft="3dp"
+
             android:layout_height="match_parent"
             android:textAlignment="center"
-            android:background="@color/white"
+            android:background="@drawable/border"
             android:gravity="center"
             android:layout_weight="20"
             android:text="TextView" />
@@ -174,7 +176,7 @@
             android:id="@+id/match_bottomname_txt"
             android:layout_marginTop="10dp"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_weight="20"
             android:textAlignment="center"
             android:textColor="@color/white"
@@ -184,25 +186,26 @@
         <ImageView
             android:id="@+id/match_serviceleft_imv"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_weight="20"
             app:srcCompat="@drawable/tennis_ball" />
 
         <TextView
             android:id="@+id/match_scoremain_txt"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_weight="20"
             android:textAlignment="center"
             android:textColor="@color/white"
-            android:text="TextView"
+            android:text="player3"
  />
 
         <ImageView
             android:id="@+id/match_serviceright_imv"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_weight="20"
+            android:scaleType="fitCenter"
 
             app:srcCompat="@drawable/tennis_ball" />
 
@@ -213,7 +216,7 @@
             android:text="player2"
             android:textAlignment="center"
             android:textColor="@color/white"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_weight="20" />
 
 
@@ -245,27 +248,27 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_marginLeft="10dp"
-            android:layout_weight="40"
+            android:layout_weight="45"
             android:onClick="OnClickWinP1"
-            android:background="@color/orangel"
-            app:srcCompat="@drawable/winbutton"
-            android:scaleType="fitCenter"/>
+            android:background="#008000"
+            app:srcCompat="@drawable/ic_action_check"
+            android:scaleType="centerInside"/>
 
         <Space
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="20"/>
+            android:layout_weight="10"/>
 
         <ImageButton
             android:id="@+id/match_winplayer2_imb"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="40"
+            android:layout_weight="45"
             android:onClick="OnClickWinP2"
             android:layout_marginRight="10dp"
-            android:background="@color/orangel"
-            app:srcCompat="@drawable/winbutton"
-            android:scaleType="fitCenter"/>
+            android:background="#008000"
+            app:srcCompat="@drawable/ic_action_check"
+            android:scaleType="centerInside"/>
 
     </LinearLayout>
 
@@ -292,28 +295,28 @@
             android:id="@+id/match_fault_imv"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="40"
+            android:layout_weight="45"
             android:onClick="OnClickFaultP1"
             android:layout_marginLeft="10dp"
-            app:srcCompat="@drawable/fault"
-            android:background="@color/orangel"
-            android:scaleType="fitCenter"/>
+            app:srcCompat="@drawable/ic_action_loose"
+            android:background="#FF0000"
+            android:scaleType="centerInside"/>
 
         <Space
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="20"/>
+            android:layout_weight="10"/>
 
     <ImageButton
         android:id="@+id/match_fault2_imv"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="40"
+        android:layout_weight="45"
         android:onClick="OnClickFaultP2"
         android:layout_marginRight="10dp"
-        app:srcCompat="@drawable/fault"
-        android:background="@color/orangel"
-        android:scaleType="fitCenter"/>
+        app:srcCompat="@drawable/ic_action_loose"
+        android:background="#FF0000"
+        android:scaleType="centerInside"/>
 
 </LinearLayout>
 

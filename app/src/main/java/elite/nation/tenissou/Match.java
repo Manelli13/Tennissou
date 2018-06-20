@@ -9,7 +9,8 @@ import android.graphics.Bitmap;
 public class Match {
 
     Bitmap mStade;
-
+    Joueur joueur;
+    Joueur joueur2;
 
 
     String mNameMatch;
@@ -19,6 +20,15 @@ public class Match {
         mStade = stade;
         mNameMatch = name;
     }
+
+    public Match(Bitmap stade, String name, Joueur joueur, Joueur joueur2 ){
+
+        mStade = stade;
+        mNameMatch = name;
+        this.joueur = joueur;
+        this.joueur2 = joueur2;
+    }
+
 
     public Bitmap getmStade() {
         return mStade;

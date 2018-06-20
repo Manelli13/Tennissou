@@ -1,8 +1,10 @@
 package elite.nation.tenissou;
 
+import android.content.SharedPreferences;
 import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Chronometer;
 import android.widget.ImageButton;
@@ -11,10 +13,14 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.yarolegovich.lovelydialog.LovelyChoiceDialog;
 
 import java.util.ArrayList;
 import java.util.List;
+
+
+import static elite.nation.tenissou.ConfigAppParameters.isTest;
 
 public class MatchActivity extends AppCompatActivity {
 
@@ -45,6 +51,8 @@ public class MatchActivity extends AppCompatActivity {
     Boolean playMatch = true;
     Boolean runMatch = false;
 
+    Match match;
+
     LovelyChoiceDialog choiceDialog;
     long elapsedMillis = 0;
 
@@ -53,6 +61,27 @@ public class MatchActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_match);
+
+        if(isTest) {
+
+            SharedPreferences pref = getApplicationContext().getSharedPreferences("tennissou", 0);
+            String val = "";
+
+            if (pref.contains("match")) {
+                Gson gson = new Gson();
+                String json = pref.getString("match", "");
+
+                Log.i("Match","json : "+ json);
+
+
+                match = gson.fromJson(json, Match.class);
+                val = match.mNameMatch;
+            } else
+                val = "";
+
+
+            setTitle("Match : " + val);
+        }
 
         init();
 
@@ -85,6 +114,15 @@ public class MatchActivity extends AppCompatActivity {
 
         service = (ImageView) findViewById(R.id.match_serviceleft_imv);
         serviceP2 = (ImageView) findViewById(R.id.match_serviceright_imv);
+
+        if(isTest){
+
+            topNameTxt.setText(match.joueur.getNom());
+            topNameP2Txt.setText(match.joueur2.getNom());
+
+            bottomNameTxt.setText(match.joueur.getNom());
+            bottomP2NameTxt.setText(match.joueur2.getNom());
+        }
 
     }
 
@@ -131,15 +169,28 @@ public class MatchActivity extends AppCompatActivity {
 
     public void OnClickFaultP1(View v){
 
+        String str = (String) topNameTxt.getText();
+        popup(str);
+
+    }
+
+    public void OnClickFaultP2(View v){
+
+        String str = (String) topNameP2Txt.getText();
+        popup(str);
+    }
+
+    public void popup(String str) {
+
         ArrayList<String> aList = new ArrayList<String>();
         aList.add("Directe");
         aList.add("Filet");
         aList.add("Double fautes");
-        aList.add("Faute de pied");        
+        aList.add("Faute de pied");
 
         new LovelyChoiceDialog(this)
                 .setTopColorRes(R.color.orangel)
-                .setTitle("Faute du joueur : " + topNameTxt.getText()+ '\n')
+                .setTitle("Faute du joueur : " + str + '\n')
                 .setIcon(R.drawable.ic_shortcut_clear)
                 .setMessage("Choisissez la faute commise : ")
                 .setItems(aList, new LovelyChoiceDialog.OnItemSelectedListener<String>() {
@@ -150,12 +201,5 @@ public class MatchActivity extends AppCompatActivity {
                 })
                 .show();
     }
-
-    public void OnClickFaultP2(View v){
-
-
-    }
-
-
 
 }
