@@ -4,9 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:weightSum="100"
-    android:orientation="vertical"
     android:background="@color/orangel"
+    android:orientation="vertical"
+    android:weightSum="100"
     tools:context="elite.nation.tenissou.MatchActivity">
 
     <LinearLayout
@@ -29,20 +29,20 @@
             android:layout_gravity="center"
             android:layout_margin="7dp"
             android:layout_weight="35"
-            android:textSize="18dp"
             android:background="@drawable/round_corner"
+            android:textAlignment="center"
 
-            android:textAlignment="center" />
+            android:textSize="18dp" />
 
         <ImageButton
             android:id="@+id/match_play_imb"
             android:layout_width="0dp"
-            android:onClick="OnClickPlay"
             android:layout_height="match_parent"
             android:layout_marginLeft="10dp"
             android:layout_weight="20"
             android:adjustViewBounds="true"
             android:background="@color/orangel"
+            android:onClick="OnClickPlay"
             android:scaleType="fitCenter"
             android:src="@drawable/ic_shortcut_play_arrow" />
 
@@ -76,57 +76,121 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="7"
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp"
         android:layout_marginTop="10dp"
+        android:layout_weight="7"
         android:weightSum="100">
 
         <TextView
             android:id="@+id/match_topname_txt"
             android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:layout_weight="50"
             android:background="@drawable/border"
-            android:textAlignment="center"
             android:gravity="center"
 
-            android:layout_weight="60"
-            android:text="player1" />
+            android:text="player1"
+            android:textAlignment="center" />
 
-
-        <TextView
-            android:id="@+id/match_setscore_txt"
+        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:layout_weight="50"
+            android:weightSum="100">
 
-            android:textAlignment="center"
-            android:background="@drawable/border"
-            android:gravity="center"
-            android:layout_weight="20"
-            android:text="TextView" />
+            <LinearLayout
+                android:id="@+id/match_lnlScore_ly"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
 
-
-        <TextView
-            android:id="@+id/match_score_txt"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-
-            android:textAlignment="center"
-            android:gravity="center"
-            android:layout_weight="20"
-            android:background="@drawable/border"
-            android:text="TextView" />
+                android:layout_alignParentTop="true"
+                android:layout_weight="100"
+                android:weightSum="100">
 
 
+                <TextView
+                    android:id="@+id/match_setscore_txt"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+
+                    android:layout_weight="40"
+                    android:background="@drawable/border"
+                    android:gravity="center"
+                    android:text="0"
+                    android:textAlignment="center" />
+
+                <TextView
+                    android:id="@+id/match_jeuxscore_txt"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="30"
+
+                    android:background="@drawable/border"
+                    android:gravity="center"
+                    android:text="0"
+                    android:textAlignment="center" />
+
+
+                <TextView
+                    android:id="@+id/match_score_txt"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+
+                    android:layout_weight="30"
+                    android:background="@drawable/border"
+                    android:gravity="center"
+                    android:text="0"
+                    android:textAlignment="center" />
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/match_lnlTie_ly"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="100"
+                android:background="@drawable/border"
+                android:weightSum="100">
+
+                <TextView
+                    android:id="@+id/match_tieBreakTxt_txt"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+
+                    android:layout_weight="50"
+                    android:gravity="center"
+                    android:text="Tie Break  : "
+                    android:textAlignment="center"
+                    android:textColor="#FF0000"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/match_tieBreak_txt"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+
+                    android:layout_weight="50"
+
+                    android:gravity="center|start"
+                    android:text="0"
+
+                    android:textColor="#FF0000"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+        </RelativeLayout>
     </LinearLayout>
 
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="7"
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp"
+        android:layout_weight="7"
 
         android:weightSum="100">
 
@@ -134,53 +198,118 @@
             android:id="@+id/match_topname2_txt"
             android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:layout_weight="50"
             android:background="@drawable/border"
-            android:textAlignment="center"
             android:gravity="center"
-            android:layout_weight="60"
-            android:text="player2" />
+            android:text="player2"
+            android:textAlignment="center" />
 
-        <TextView
-            android:id="@+id/match_setscore2_txt"
+        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="0dp"
-            android:background="@drawable/border"
             android:layout_height="match_parent"
+            android:layout_weight="50"
+            android:weightSum="100">
 
-            android:gravity="center"
-            android:layout_weight="20"
-            android:textAlignment="center"
-            android:text="TextView" />
+            <LinearLayout
+                android:id="@+id/match_lnlScoreP2_ly"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="100"
 
-        <TextView
-            android:id="@+id/match_score2_txt"
-            android:layout_width="0dp"
+                android:weightSum="100">
 
-            android:layout_height="match_parent"
-            android:textAlignment="center"
-            android:background="@drawable/border"
-            android:gravity="center"
-            android:layout_weight="20"
-            android:text="TextView" />
+                <TextView
+                    android:id="@+id/match_setscore2_txt"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="40"
 
+                    android:background="@drawable/border"
+                    android:gravity="center"
+                    android:text="0"
+                    android:textAlignment="center" />
+
+                <TextView
+                    android:id="@+id/match_jeuxscore2_txt"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="30"
+
+                    android:background="@drawable/border"
+                    android:gravity="center"
+                    android:text="0"
+                    android:textAlignment="center" />
+
+                <TextView
+                    android:id="@+id/match_score2_txt"
+                    android:layout_width="0dp"
+
+                    android:layout_height="match_parent"
+                    android:layout_weight="30"
+                    android:background="@drawable/border"
+                    android:gravity="center"
+                    android:text="0"
+                    android:textAlignment="center" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/match_lnlTieP2_ly"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="100"
+                android:background="@drawable/border"
+                android:weightSum="100">
+
+                <TextView
+                    android:id="@+id/match_tieBreakP2txt_txt"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+
+                    android:layout_weight="50"
+                    android:gravity="center"
+                    android:text="Tie Break  : "
+                    android:textAlignment="center"
+                    android:textColor="#FF0000"
+                    android:textStyle="bold" />
+
+
+                <TextView
+                    android:id="@+id/match_tieBreakP2_txt"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+
+                    android:layout_weight="50"
+
+                    android:gravity="center|left"
+                    android:text="0"
+                    android:textColor="#FF0000"
+                    android:textStyle="bold" />
+
+
+            </LinearLayout>
+
+
+        </RelativeLayout>
     </LinearLayout>
 
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="10"
         android:layout_marginTop="20dp"
+        android:layout_weight="10"
         android:weightSum="100">
 
         <TextView
             android:id="@+id/match_bottomname_txt"
-            android:layout_marginTop="10dp"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
             android:layout_weight="20"
+            android:text="player1"
             android:textAlignment="center"
-            android:textColor="@color/white"
-            android:text="player1" />
+            android:textColor="@color/white" />
 
 
         <ImageView
@@ -195,10 +324,10 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="20"
+            android:text="0 - 0"
             android:textAlignment="center"
             android:textColor="@color/white"
-            android:text="player3"
- />
+            android:textSize="18dp" />
 
         <ImageView
             android:id="@+id/match_serviceright_imv"
@@ -212,12 +341,12 @@
         <TextView
             android:id="@+id/match_bottomname2_txt"
             android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
+            android:layout_weight="20"
             android:text="player2"
             android:textAlignment="center"
-            android:textColor="@color/white"
-            android:layout_height="wrap_content"
-            android:layout_weight="20" />
+            android:textColor="@color/white" />
 
 
     </LinearLayout>
@@ -226,20 +355,19 @@
         android:id="@+id/match_win_txt"
         android:layout_width="247dp"
         android:layout_height="0dp"
-        android:layout_weight="5"
-        android:textColor="@color/white"
-        android:textSize="18dp"
         android:layout_marginLeft="5dp"
-        android:text="@string/Win"
         android:layout_marginTop="10dp"
-        />
+        android:layout_weight="5"
+        android:text="@string/Win"
+        android:textColor="@color/white"
+        android:textSize="18dp" />
 
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="28"
         android:layout_marginTop="5dp"
+        android:layout_weight="28"
         android:weightSum="100">
 
 
@@ -249,26 +377,26 @@
             android:layout_height="match_parent"
             android:layout_marginLeft="10dp"
             android:layout_weight="45"
-            android:onClick="OnClickWinP1"
             android:background="#008000"
-            app:srcCompat="@drawable/ic_action_check"
-            android:scaleType="centerInside"/>
+            android:onClick="OnClickWinP1"
+            android:scaleType="centerInside"
+            app:srcCompat="@drawable/ic_action_check" />
 
         <Space
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="10"/>
+            android:layout_weight="10" />
 
         <ImageButton
             android:id="@+id/match_winplayer2_imb"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="45"
-            android:onClick="OnClickWinP2"
             android:layout_marginRight="10dp"
+            android:layout_weight="45"
             android:background="#008000"
-            app:srcCompat="@drawable/ic_action_check"
-            android:scaleType="centerInside"/>
+            android:onClick="OnClickWinP2"
+            android:scaleType="centerInside"
+            app:srcCompat="@drawable/ic_action_check" />
 
     </LinearLayout>
 
@@ -276,49 +404,48 @@
         android:id="@+id/match_fault_txt"
         android:layout_width="247dp"
         android:layout_height="0dp"
-        android:layout_weight="5"
-        android:textColor="@color/white"
-        android:textSize="18dp"
         android:layout_marginLeft="5dp"
-        android:text="@string/fault"
         android:layout_marginTop="10dp"
-        />
+        android:layout_weight="5"
+        android:text="@string/fault"
+        android:textColor="@color/white"
+        android:textSize="18dp" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="28"
         android:layout_marginTop="10dp"
+        android:layout_weight="28"
         android:weightSum="100">
 
         <ImageButton
             android:id="@+id/match_fault_imv"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="45"
-            android:onClick="OnClickFaultP1"
             android:layout_marginLeft="10dp"
-            app:srcCompat="@drawable/ic_action_loose"
+            android:layout_weight="45"
             android:background="#FF0000"
-            android:scaleType="centerInside"/>
+            android:onClick="OnClickFaultP1"
+            android:scaleType="centerInside"
+            app:srcCompat="@drawable/ic_action_loose" />
 
         <Space
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="10"/>
+            android:layout_weight="10" />
 
-    <ImageButton
-        android:id="@+id/match_fault2_imv"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="45"
-        android:onClick="OnClickFaultP2"
-        android:layout_marginRight="10dp"
-        app:srcCompat="@drawable/ic_action_loose"
-        android:background="#FF0000"
-        android:scaleType="centerInside"/>
+        <ImageButton
+            android:id="@+id/match_fault2_imv"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginRight="10dp"
+            android:layout_weight="45"
+            android:background="#FF0000"
+            android:onClick="OnClickFaultP2"
+            android:scaleType="centerInside"
+            app:srcCompat="@drawable/ic_action_loose" />
 
-</LinearLayout>
+    </LinearLayout>
 
 
 </LinearLayout>
