@@ -5,20 +5,40 @@ import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class Choose_match_activity extends AppCompatActivity {
+import pl.droidsonroids.gif.GifTextView;
+
+public class Choose_match_activity extends AppCompatActivity implements ServerCallBack {
 
     ListView listView;
+    ArrayList<Match> listMatch;
 
+    GifTextView gif;
+
+    final ArrayList<Match> aMatch = new ArrayList<>();
+    MatchAdapter adapMatch;
+
+    MatchWebAdapter adapWMatch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,12 +48,27 @@ public class Choose_match_activity extends AppCompatActivity {
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         setContentView(R.layout.activity_choose_match);
         listView = (ListView) findViewById(R.id.choose_list_lv);
-        final ArrayList<Match> aMatch = new ArrayList<>();
-        MatchAdapter adapMatch;
+        gif = (GifTextView) findViewById(R.id.choose_progressBar);
 
-        adapMatch = new MatchAdapter(this, aMatch);
+        listMatch = new ArrayList();
+
+       // if (!ConfigAppParameters.isTest)
+            requestMatch();
+
+
+
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+
 
         if (ConfigAppParameters.isTest) {
+
+            gif.setVisibility(View.INVISIBLE);
 
             aMatch.add(new Match(BitmapFactory.decodeResource(getResources(), R.drawable.stade), "FEDERER VS RISITAS",
                     new Joueur("Federer", "Roger", "Angleterre", 28, 10),
@@ -43,37 +78,177 @@ public class Choose_match_activity extends AppCompatActivity {
             aMatch.add(new Match(BitmapFactory.decodeResource(getResources(), R.drawable.stade), "ISSOU VS RISITAS"));
             aMatch.add(new Match(BitmapFactory.decodeResource(getResources(), R.drawable.stade), "GPASLU VS RISITAS"));
 
-        }
-        listView.setAdapter(adapMatch);
+            adapMatch = new MatchAdapter(this, aMatch);
+            listView.setAdapter(adapMatch);
+        } else {
 
-        listView.setOnItemClickListener(new OnItemClickListener(){
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Object item = parent.getItemAtPosition(position);
+           /* for (Match match : listMatch) {
 
-                SharedPreferences sp = getApplicationContext().getSharedPreferences("tennissou", 0);
-                SharedPreferences.Editor edit = sp.edit();
+                ArrayList<Joueur> j = new ArrayList<>();
+                ArrayList<Joueur> j1 = new ArrayList<>();
+                ArrayList<Joueur> j2 = new ArrayList<>();
 
-                Gson gson = new Gson();
-                String json = gson.toJson(aMatch.get((int) item));
-                edit.putString("match", json);
-                edit.commit();
+                j = requestJoueur(match.idMatch);
 
 
-                Intent intent = new Intent(Choose_match_activity.this,MatchActivity.class);
-                //based on item add info to intent
-                startActivity(intent);
+                if (j.size() == 4) {
+
+                    j1.add(j.get(0));
+                    j1.add(j.get(1));
+
+                    j1.add(j.get(2));
+                    j1.add(j.get(3));
+
+                }
+                else{
+
+                    j1.add(j.get(0));
+                    j2.add(j.get(1));
+                }
+
+                Match Match = new Match(match, j1, j2);
+
+                aMatch.add(match);
+
             }
+            adapWMatch = new MatchWebAdapter(this, aMatch);
+            listView.setAdapter(adapWMatch);*/
+        }
 
-        });
+        if (ConfigAppParameters.isTest) {
+            listView.setOnItemClickListener(new OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    Object item = parent.getItemAtPosition(position);
+
+
+                    SharedPreferences sp = getApplicationContext().getSharedPreferences("tennissou", 0);
+                    SharedPreferences.Editor edit = sp.edit();
+
+                    Gson gson = new Gson();
+                    String json = gson.toJson(aMatch.get((int) item));
+                    edit.putString("match", json);
+                    edit.commit();
+
+
+                    Intent intent = new Intent(Choose_match_activity.this, MatchActivity.class);
+                    //based on item add info to intent
+                    startActivity(intent);
+                }
+
+            });
+        }
     }
 
+    public void requestMatch() {
+
+
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String url = ConfigAppParameters.URL + "/matchs";
+
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>() {
+
+                    @Override
+                    public void onResponse(String response) {
+                        // Display the first 500 characters of the response string.
+                        try {
+                           // JSONObject jsonObject = new JSONObject(response);
+                           // Log.i("requestmatch", jsonObject.toString());
+
+                            JSONArray jsonArray = new JSONArray(response);
+                            Log.i("requestmatch", jsonArray.toString());
+
+                            for (int i = 0; i < jsonArray.length(); i++) {
+                                JSONObject jo = jsonArray.getJSONObject(i);
+                                Log.i("requestJo", jo.toString());
+
+                                listMatch.add(Match.fromJson(jo));
+                                Log.i("requestId", ""+listMatch.get(i).idMatch);
+                            }
+
+                            for (Match match : listMatch) {
+
+
+if(match.idMatch != 3)
+                                requestJoueur(match.idMatch);
+
+                            }
+
+
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            Log.i("requestmatchJsonError", e.getMessage());
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                // Anything you want
+                Log.i("requestmatchError", error.getMessage());
+            }
+        });
+
+        RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
+        requestQueue.add(stringRequest);
+    }
+
+    public void requestJoueur(final long matchId) {
+
+        final ArrayList<Joueur> lJoueur = new ArrayList<Joueur>();
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String url = ConfigAppParameters.URL + "/matchs/"+matchId+"/joueurs";
+
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // Display the first 500 characters of the response string.
+                        try {
+                            // JSONObject jsonObject = new JSONObject(response);
+                            // Log.i("requestmatch", jsonObject.toString());
+
+                            JSONArray jsonArray = new JSONArray(response);
+                            Log.i("requestmatch", jsonArray.toString());
+
+                            for (int i = 0; i < jsonArray.length(); i++) {
+                                JSONObject jo = jsonArray.getJSONObject(i);
+
+
+                                lJoueur.add(Joueur.fromJson(jo));
+
+                            }
+                            onSuccess(matchId, lJoueur);
+
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            Log.i("requestmatchJsonError", e.getMessage());
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                // Anything you want
+                Log.i("requestmatchError", error.getMessage());
+            }
+        });
+
+        RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
+        requestQueue.add(stringRequest);
+
+
+
+    }
 
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
 
-                Intent intent = new Intent( Choose_match_activity.this, Connection_activity.class);
+                Intent intent = new Intent(Choose_match_activity.this, Connection_activity.class);
                 startActivity(intent);
 
                 return true;
@@ -83,6 +258,59 @@ public class Choose_match_activity extends AppCompatActivity {
     }
 
 
+    @Override
+    public void onSuccess(long matchId, ArrayList<Joueur> result) {
+
+        gif.setVisibility(View.INVISIBLE);
+        ArrayList<Joueur> j1 = new ArrayList<>();
+        ArrayList<Joueur> j2 = new ArrayList<>();
+
+        if (result.size() == 4) {
+
+            j1.add(result.get(0));
+            j1.add(result.get(1));
+
+            j1.add(result.get(2));
+            j1.add(result.get(3));
+
+        } else {
+
+            j1.add(result.get(0));
+            j2.add(result.get(1));
+        }
+
+        Match match = new Match(listMatch.get((int)matchId), j1, j2);
+
+        aMatch.add(match);
+
+        adapWMatch = new MatchWebAdapter(this, aMatch);
+
+        listView.setAdapter(adapWMatch);
+
+        listView.setOnItemClickListener(new OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Object item = parent.getItemAtPosition(position);
+
+
+                SharedPreferences sp = getApplicationContext().getSharedPreferences("tennissou", 0);
+                SharedPreferences.Editor edit = sp.edit();
+
+                Gson gson = new Gson();
+                String json = gson.toJson(aMatch.get((int)item));
+                edit.putString("match", json);
+                Log.i("json", json.toString());
+                edit.commit();
+
+
+                Intent intent = new Intent(Choose_match_activity.this, MatchActivity.class);
+                //based on item add info to intent
+                startActivity(intent);
+            }
+        });
+
+    }
 
 
 }
+

@@ -110,6 +110,33 @@ public class MatchActivity extends AppCompatActivity {
 
 
             setTitle("Match : " + val);
+        }else{
+
+            SharedPreferences pref = getApplicationContext().getSharedPreferences("tennissou", 0);
+            String val = "";
+
+            //TODO recup max set
+
+            maxSet=3;
+
+            if (pref.contains("match")) {
+                Gson gson = new Gson();
+                String json = pref.getString("match", "");
+
+                Log.i("Match","json : "+ json);
+
+
+                match = gson.fromJson(json, Match.class);
+
+
+                val = match.ejoueur1.get(0).getNom() +" VS "+ match.ejoueur2.get(0).getNom() ;
+
+
+            } else
+                val = "";
+
+
+            setTitle("Match : " + val);
         }
 
         init();
@@ -166,6 +193,14 @@ public class MatchActivity extends AppCompatActivity {
 
             bottomNameTxt.setText(match.joueur.getNom());
             bottomP2NameTxt.setText(match.joueur2.getNom());
+        }
+        else{
+
+            topNameTxt.setText(match.ejoueur1.get(0).getNom());
+            topNameP2Txt.setText(match.ejoueur2.get(0).getNom());
+
+            bottomNameTxt.setText(match.ejoueur1.get(0).getNom());
+            bottomP2NameTxt.setText(match.ejoueur2.get(0).getNom());
         }
 
         serviceP2.setVisibility(View.INVISIBLE);
