@@ -28,6 +28,8 @@ import java.util.ArrayList;
 
 import pl.droidsonroids.gif.GifTextView;
 
+import static elite.nation.tenissou.ConfigAppParameters.isTest;
+
 public class Choose_match_activity extends AppCompatActivity implements ServerCallBack {
 
     ListView listView;
@@ -53,7 +55,7 @@ public class Choose_match_activity extends AppCompatActivity implements ServerCa
         listMatch = new ArrayList();
 
        // if (!ConfigAppParameters.isTest)
-            requestMatch();
+          //  requestMatch();
 
 
 
@@ -66,7 +68,7 @@ public class Choose_match_activity extends AppCompatActivity implements ServerCa
 
 
 
-        if (ConfigAppParameters.isTest) {
+        if (isTest) {
 
             gif.setVisibility(View.INVISIBLE);
 
@@ -82,40 +84,9 @@ public class Choose_match_activity extends AppCompatActivity implements ServerCa
             listView.setAdapter(adapMatch);
         } else {
 
-           /* for (Match match : listMatch) {
-
-                ArrayList<Joueur> j = new ArrayList<>();
-                ArrayList<Joueur> j1 = new ArrayList<>();
-                ArrayList<Joueur> j2 = new ArrayList<>();
-
-                j = requestJoueur(match.idMatch);
-
-
-                if (j.size() == 4) {
-
-                    j1.add(j.get(0));
-                    j1.add(j.get(1));
-
-                    j1.add(j.get(2));
-                    j1.add(j.get(3));
-
-                }
-                else{
-
-                    j1.add(j.get(0));
-                    j2.add(j.get(1));
-                }
-
-                Match Match = new Match(match, j1, j2);
-
-                aMatch.add(match);
-
-            }
-            adapWMatch = new MatchWebAdapter(this, aMatch);
-            listView.setAdapter(adapWMatch);*/
         }
 
-        if (ConfigAppParameters.isTest) {
+        if (isTest) {
             listView.setOnItemClickListener(new OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -138,7 +109,31 @@ public class Choose_match_activity extends AppCompatActivity implements ServerCa
 
             });
         }
+        requestMatch();
     }
+
+
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if(!isTest) {
+
+            aMatch.clear();
+            adapMatch = new MatchAdapter(this, aMatch);
+            adapWMatch = new MatchWebAdapter(this, aMatch);
+
+            adapWMatch.notifyDataSetChanged();
+            listView.setAdapter(adapWMatch);
+
+            gif.setVisibility(View.VISIBLE);
+
+        }
+    }
+
+
 
     public void requestMatch() {
 
@@ -171,7 +166,7 @@ public class Choose_match_activity extends AppCompatActivity implements ServerCa
                             for (Match match : listMatch) {
 
 
-if(match.idMatch != 3)
+
                                 requestJoueur(match.idMatch);
 
                             }
@@ -279,11 +274,12 @@ if(match.idMatch != 3)
             j2.add(result.get(1));
         }
 
-        Match match = new Match(listMatch.get((int)matchId), j1, j2);
+        Match match = new Match(listMatch.get((int)matchId -1), j1, j2);
 
         aMatch.add(match);
 
         adapWMatch = new MatchWebAdapter(this, aMatch);
+        adapWMatch.notifyDataSetChanged();
 
         listView.setAdapter(adapWMatch);
 

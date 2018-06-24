@@ -28,10 +28,11 @@
     <pl.droidsonroids.gif.GifTextView
 
         android:background="@drawable/loading"
+        android:adjustViewBounds="true"
         android:id="@+id/choose_progressBar"
         style="?android:attr/progressBarStyle"
-        android:layout_width="240dp"
-        android:layout_height="240dp"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
         android:layout_marginRight="8dp"
         app:layout_constraintRight_toRightOf="parent"
         android:layout_marginLeft="8dp"

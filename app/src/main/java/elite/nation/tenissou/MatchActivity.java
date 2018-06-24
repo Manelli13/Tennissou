@@ -18,9 +18,19 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 import com.yarolegovich.lovelydialog.LovelyChoiceDialog;
 import com.yarolegovich.lovelydialog.LovelyStandardDialog;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -125,12 +135,11 @@ public class MatchActivity extends AppCompatActivity {
 
                 Log.i("Match","json : "+ json);
 
-
                 match = gson.fromJson(json, Match.class);
-
 
                 val = match.ejoueur1.get(0).getNom() +" VS "+ match.ejoueur2.get(0).getNom() ;
 
+                addWebJeux((int)match.getMatch().idMatch, 1, 1,0,false);
 
             } else
                 val = "";
@@ -260,9 +269,13 @@ public class MatchActivity extends AppCompatActivity {
 
     }
 
+    // set addition les 2 + 1
     public void OnClickWinP1(View v){
 
     scoreCount(playerOne);
+
+
+
 
     }
 
@@ -306,6 +319,7 @@ public class MatchActivity extends AppCompatActivity {
                 .show();
     }
 
+
     public void scoreCount(int player){
 
         String setValuue;
@@ -328,6 +342,7 @@ public class MatchActivity extends AppCompatActivity {
 
 
         scoreValue = topScoreTxt.getText().toString();
+
 
         if(scoreValue == "A")
             scoreValue = ""+41;
@@ -364,11 +379,17 @@ public class MatchActivity extends AppCompatActivity {
 
 
         if (player == playerOne) {
-            if (score < 30)
+            if (score < 30) {
                 score += 15;
 
-            else if (score == 30)
+                //+1 -> set 1 = 0 +1
+                addWebScore(set +setP2 +1, jeux + jeuxP2+1, playerOne, ""+score);
+            }
+
+            else if (score == 30) {
                 score += 10;
+                addWebScore(set +setP2 +1, jeux + jeuxP2+1, playerOne, ""+score);
+            }
 //Tie break
             else if (isTieB || (
                     jeux == 5
@@ -378,11 +399,6 @@ public class MatchActivity extends AppCompatActivity {
                     )
                     )
 
-                    /*(((score == 40 && scoreP2 < 40) || score == 41 )
-                    && jeux == 5
-                    && jeuxP2 == 6
-                    && ((set != maxSet-1 && setP2 < maxSet-1 ) || (setP2 != maxSet-1 && set < maxSet-1) ) )
-                    ) */
             {
 
                 isTieB = true;
@@ -401,12 +417,18 @@ public class MatchActivity extends AppCompatActivity {
 
                    score = 0;
                    scoreP2 = 0;
+                   tieP1++;
+                   addWebTie((int)match.getMatch().idMatch,set + setP2 + 1, playerOne,tieP1,true);
                    jeux = 0;
                    jeuxP2 = 0;
                    tieP1 = 0;
                    tieP2 = 0;
                    count = -1;
                    set++;
+
+                   updateWebSet(match.getMatch().idMatch,playerOne);
+                   addWebJeux((int) match.getMatch().idMatch, set + setP2 +1,1, playerOne,false);
+
                    isFirst = false;
                    isTieB = false;
                    lnP1Tie.setVisibility(View.INVISIBLE);
@@ -419,6 +441,8 @@ public class MatchActivity extends AppCompatActivity {
                 else if (isFirst){
                    count++;
                    tieP1++;
+                   addWebTie((int)match.getMatch().idMatch,set + setP2 + 1, playerOne,tieP1,true);
+
 
                    if(count % 2 == 0){
 
@@ -437,6 +461,7 @@ public class MatchActivity extends AppCompatActivity {
                 }else{
                    isFirst = true;
                    isServiceP1 = true;
+                   addWebTie((int)match.getMatch().idMatch,set + setP2 + 1, 0,0,false);
                    serviceP2.setVisibility(View.INVISIBLE);
                    service.setVisibility(View.VISIBLE);
 
@@ -450,6 +475,8 @@ public class MatchActivity extends AppCompatActivity {
                 jeux = 0;
                 jeuxP2 = 0;
                 set++;
+                updateWebSet(match.getMatch().idMatch,playerOne);
+                addWebJeux((int) match.getMatch().idMatch, set + setP2 +1,1, playerOne,false);
 
                if(isServiceP1 == true){
                    isServiceP1 = false;
@@ -480,10 +507,16 @@ public class MatchActivity extends AppCompatActivity {
                 }
 
                 jeux++;
+
+                addWebJeux((int)match.getMatch().idMatch,set + setP2 + 1,jeux+ jeuxP2 + 1, playerOne, true);
+
+
             }else if(score == 40 && scoreP2 == 40){
                 score = 41;
+                addWebScore(set +setP2+1, jeux + jeuxP2+1, playerOne, ""+score);
             }else if(score == 40 && scoreP2 == 41){
                 scoreP2 = 40;
+                addWebScore(set +setP2 +1, jeux + jeuxP2+1, playerTwo, ""+scoreP2);
             }
             else if(score == 41 && scoreP2 == 40){
                 score = 0;
@@ -502,16 +535,22 @@ public class MatchActivity extends AppCompatActivity {
                 }
 
                 jeux++;
+                addWebJeux((int)match.getMatch().idMatch,set + setP2 + 1,jeux+ jeuxP2 + 1, playerOne, true);
             }
 
 // Cas gagnant p2
         } else if (player == playerTwo) {
 
-            if (scoreP2 < 30)
+            if (scoreP2 < 30) {
                 scoreP2 += 15;
+                addWebScore(set + setP2  +1, jeux + jeuxP2+1, playerTwo, ""+scoreP2);
+            }
 
-            else if (scoreP2 == 30)
+
+            else if (scoreP2 == 30) {
                 scoreP2 += 10;
+                addWebScore(set + setP2 +1, jeux + jeuxP2+1, playerTwo, ""+scoreP2);
+            }
 
 
 //Tie break
@@ -537,6 +576,8 @@ public class MatchActivity extends AppCompatActivity {
 
                 if ((tieP2 - tieP1) >= 1 && tieP2 > 5 && isFirst) {
 
+                    tieP2++;
+                    addWebTie((int)match.getMatch().idMatch,set + setP2 + 1, playerTwo,tieP2,true);
                     score = 0;
                     scoreP2 = 0;
                     jeux = 0;
@@ -545,6 +586,8 @@ public class MatchActivity extends AppCompatActivity {
                     tieP2 = 0;
                     count= -1;
                     setP2++;
+                    updateWebSet(match.getMatch().idMatch,playerTwo);
+                    addWebJeux((int) match.getMatch().idMatch, set + setP2+1,1 , playerTwo,false);
                     isFirst = false;
                     isTieB = false;
 
@@ -571,6 +614,7 @@ public class MatchActivity extends AppCompatActivity {
 
                     tieP2++;
                     count++;
+                    addWebTie((int)match.getMatch().idMatch,set + setP2 + 1, playerTwo,tieP2,true);
                     if(count % 2 == 0){
 
                         if(serviceP2.getVisibility() == View.VISIBLE) {
@@ -588,7 +632,7 @@ public class MatchActivity extends AppCompatActivity {
 
                 }else{
                     isFirst = true;
-
+                    addWebTie((int)match.getMatch().idMatch,set + setP2 + 1, playerTwo,tieP2,false);
                     isServiceP1 = false;
                     serviceP2.setVisibility(View.VISIBLE);
                     service.setVisibility(View.INVISIBLE);
@@ -602,6 +646,8 @@ public class MatchActivity extends AppCompatActivity {
                 jeuxP2 = 0;
                 jeux = 0;
                 setP2++;
+                updateWebSet(match.getMatch().idMatch,playerTwo);
+                addWebJeux((int) match.getMatch().idMatch, set + setP2+1,1 , playerTwo,false);
 
                 if(isServiceP1 == true){
                     isServiceP1 = false;
@@ -619,6 +665,7 @@ public class MatchActivity extends AppCompatActivity {
                 score = 0;
                 scoreP2 = 0;
                 jeuxP2++;
+                addWebJeux((int)match.getMatch().idMatch,set + setP2 + 1,jeux+ jeuxP2 + 1, playerTwo, true);
 
                 if(isServiceP1 == true){
                     isServiceP1 = false;
@@ -634,8 +681,10 @@ public class MatchActivity extends AppCompatActivity {
 
             }else if(score == 40 && scoreP2 == 40){
                 scoreP2 = 41;
+                addWebScore(set+ setP2 +1, jeux+1, playerTwo, ""+scoreP2);
             }else if(scoreP2 == 40 && score == 41){
                 score = 40;
+                addWebScore(set+ setP2 +1, jeux+1, playerOne, ""+score);
             }
             else if(score == 40 && scoreP2 == 41){
                 score = 0;
@@ -653,6 +702,7 @@ public class MatchActivity extends AppCompatActivity {
                     serviceP2.setVisibility(View.INVISIBLE);
                 }
                 jeuxP2++;
+                addWebJeux((int)match.getMatch().idMatch,set + setP2 + 1,jeux+ jeuxP2 + 1, playerTwo, true);
             }
         }
 //fin du match a config
@@ -732,6 +782,235 @@ public class MatchActivity extends AppCompatActivity {
 
         topSetScoreTxt.setText(""+set);
         topSetScoreP2Txt.setText(""+setP2);
+
+
+
+    }
+
+//TODO WEBSERVICE
+
+    public void updWebTie(int matchid, int set, int joueur,int score){
+
+
+
+        final ArrayList<Joueur> lJoueur = new ArrayList<Joueur>();
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String url = ConfigAppParameters.URL + "/match/"+matchid+"/"+set+"/joueur"+joueur+"/"+score;
+
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.PUT, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // Display the first 500 characters of the response string.
+
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                // Anything you want
+                Log.i("requestmatchError", error.getMessage());
+            }
+        });
+
+        RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
+        requestQueue.add(stringRequest);
+
+
+    }
+
+    public void addWebTie(final int matchid, final int set, final int player, final int score, final boolean isWin ){
+
+
+        if (isWin)
+            updWebTie( matchid,  set,  player, score);
+        else {
+            final ArrayList<Joueur> lJoueur = new ArrayList<Joueur>();
+            RequestQueue queue = Volley.newRequestQueue(this);
+            String url = ConfigAppParameters.URL + "/match/" + matchid + "/" + set + "/createTiebreak";
+
+
+            // Request a string response from the provided URL.
+            StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            // Display the first 500 characters of the response string.
+
+                        }
+                    }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    // Anything you want
+                    Log.i("requestmatchError", error.getMessage());
+                }
+            });
+
+            RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
+            requestQueue.add(stringRequest);
+
+        }
+    }
+
+
+    public void updateWebSet(long match, int joueur){
+
+        final ArrayList<Joueur> lJoueur = new ArrayList<Joueur>();
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String url = ConfigAppParameters.URL + "/match/"+match+"/joueur"+joueur;
+
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.PUT, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // Display the first 500 characters of the response string.
+
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                // Anything you want
+                Log.i("requestmatchError", error.getMessage());
+            }
+        });
+
+        RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
+        requestQueue.add(stringRequest);
+
+    }
+
+    public void updWebJeux(int matchid, int set, int joueur,int jeux){
+
+
+
+        final ArrayList<Joueur> lJoueur = new ArrayList<Joueur>();
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String url = ConfigAppParameters.URL + "/match/"+matchid+"/"+set+"/joueur"+joueur;
+
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.PUT, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // Display the first 500 characters of the response string.
+
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                // Anything you want
+                Log.i("requestmatchError", error.getMessage());
+            }
+        });
+
+        RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
+        requestQueue.add(stringRequest);
+
+
+    }
+
+    public void addWebJeux(final int matchid, final int set, final int idJeu, final int player, final boolean isWin ){
+
+
+
+        final ArrayList<Joueur> lJoueur = new ArrayList<Joueur>();
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String url = ConfigAppParameters.URL + "/match/"+matchid+"/"+set+"/"+idJeu+"/createJeu";
+
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // Display the first 500 characters of the response string.
+                        if (isWin)
+                            updWebJeux( matchid,  set,  player, idJeu);
+
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                // Anything you want
+                Log.i("requestmatchError", error.getMessage());
+            }
+        });
+
+        RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
+        requestQueue.add(stringRequest);
+
+
+    }
+
+
+    public void addWebScore(int set, int idJeu, int joueur, String score){
+
+        final ArrayList<Joueur> lJoueur = new ArrayList<Joueur>();
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String url = ConfigAppParameters.URL + "/match/"+match.getMatch().idMatch+"/"+set+"/"+idJeu+"/joueur"+joueur+"/"+score;
+
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.PUT, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // Display the first 500 characters of the response string.
+
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                // Anything you want
+                Log.i("requestmatchError", error.getMessage());
+            }
+        });
+
+        RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
+        requestQueue.add(stringRequest);
+    }
+
+    public void requestJoueur(final long matchId) {
+
+        final ArrayList<Joueur> lJoueur = new ArrayList<Joueur>();
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String url = ConfigAppParameters.URL + "/matchs/"+matchId+"/joueurs";
+
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // Display the first 500 characters of the response string.
+                        try {
+                            // JSONObject jsonObject = new JSONObject(response);
+                            // Log.i("requestmatch", jsonObject.toString());
+
+                            JSONArray jsonArray = new JSONArray(response);
+                            Log.i("requestmatch", jsonArray.toString());
+
+                            for (int i = 0; i < jsonArray.length(); i++) {
+                                JSONObject jo = jsonArray.getJSONObject(i);
+
+
+                                lJoueur.add(Joueur.fromJson(jo));
+
+                            }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            Log.i("requestmatchJsonError", e.getMessage());
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                // Anything you want
+                Log.i("requestmatchError", error.getMessage());
+            }
+        });
+
+        RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
+        requestQueue.add(stringRequest);
 
 
 
