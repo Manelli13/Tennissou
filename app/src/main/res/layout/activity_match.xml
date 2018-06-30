@@ -9,6 +9,43 @@
     android:weightSum="100"
     tools:context="elite.nation.tenissou.MatchActivity">
 
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/products_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/orange"
+        app:titleTextColor="@android:color/white">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/orange">
+
+            <TextView
+                android:id="@+id/toolbar_title"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="Title"
+                android:gravity="center"
+                android:textColor="@android:color/white"
+                android:textSize="20dp"
+                android:textStyle="bold"
+              />
+
+            <ImageButton
+                android:id="@+id/toolbar_button"
+                android:onClick="OnClickHelp"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="92dp"
+                android:layout_height="match_parent"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:scaleType="centerInside"
+                android:src="@drawable/help" />
+
+        </RelativeLayout>
+    </android.support.v7.widget.Toolbar>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"

@@ -25,7 +25,9 @@
         <activity
             android:name=".Choose_match_activity"
             android:label="Choose Match" />
-        <activity android:name=".MatchActivity"></activity>
+        <activity android:name=".MatchActivity"
+      android:theme="@style/AppTheme.FullScreen">
+        </activity>
     </application>
 
 </manifest>

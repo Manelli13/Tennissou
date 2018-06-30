@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Tenissou</string>
     <string name="choose_match">Choose your match</string>
-    <string name="select">Select match :</string>
+    <string name="select">Choisissez un match :</string>
     <string name="Win">Win :</string>
     <string name="fault">Fault :</string>
 

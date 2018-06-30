@@ -16,6 +16,7 @@ public class Match {
     Bitmap mStade;
     Joueur joueur;
     Joueur joueur2;
+    int idArbitre;
 
     long idMatch;
     int idTournoi;
@@ -52,7 +53,7 @@ public class Match {
     }
 
 
-    public Match(long idMatch, String lieuMatch, int idTournoi, String date, String etatMatch, String terrainMatch){
+    public Match(long idMatch, String lieuMatch, int idTournoi, String date, String etatMatch, String terrainMatch, int idArbitre){
 
         this.idMatch = idMatch;
         this.idTournoi = idTournoi;
@@ -61,6 +62,7 @@ public class Match {
         this.etatMatch = etatMatch;
         this.terrainMatch = terrainMatch;
         this.idScore = idScore;
+        this.idArbitre = idArbitre;
 
     }
 
@@ -104,6 +106,14 @@ public class Match {
     }
     public void setIdMatch(long idMatch) {
         this.idMatch = idMatch;
+    }
+
+    public int getIdArbitre() {
+        return idArbitre;
+    }
+
+    public void setIdArbitre(int idArbitre) {
+        this.idArbitre = idArbitre;
     }
 
     public int getIdTournoi() {
@@ -170,11 +180,12 @@ public class Match {
            long idMatch = jsonObject.getInt("idMatch");
            String lieuMatch = jsonObject.getString("lieuMatch");
            int idTournoi = jsonObject.getInt("idTournoi");
+           int idArbitre = jsonObject.getInt("idArbitre");
            String date = jsonObject.getString("dateDebut");
            String etatMatch = jsonObject.getString("etatMatch");
            String terrainMatch = jsonObject.getString("terrainMatch");
 
-           Match m = new Match(idMatch, lieuMatch, idTournoi, date, etatMatch, terrainMatch);
+           Match m = new Match(idMatch, lieuMatch, idTournoi, date, etatMatch, terrainMatch, idArbitre);
 
            return m;
 

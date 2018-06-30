@@ -11,7 +11,11 @@
     <style name="AppTheme.FullScreen"  parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
-        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowFullscreen">false</item>
+
+        <item name="colorPrimary">@color/orange</item>
+        <item name="colorPrimaryDark">@color/orangel</item>
+        <item name="colorAccent">@color/colorAccent</item>
     </style>
 
 </resources>

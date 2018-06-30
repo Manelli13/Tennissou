@@ -51,6 +51,9 @@ public class MatchActivity extends AppCompatActivity {
     TextView topJeuxTxt;
     TextView topJeuxP2Txt;
 
+    TextView toolbarTxt;
+    ImageView toolbarImb;
+
     TextView bottomNameTxt;
     TextView bottomP2NameTxt;
 
@@ -144,8 +147,9 @@ public class MatchActivity extends AppCompatActivity {
             } else
                 val = "";
 
-
-            setTitle("Match : " + val);
+            toolbarTxt = (TextView) findViewById(R.id.toolbar_title);
+            toolbarImb = (ImageView) findViewById(R.id.toolbar_button);
+            toolbarTxt.setText("Match : " + val);
         }
 
         init();
@@ -191,6 +195,9 @@ public class MatchActivity extends AppCompatActivity {
 
         tieBreakP1 = (TextView) findViewById(R.id.match_tieBreak_txt);
         tieBreakP2 = (TextView) findViewById(R.id.match_tieBreakP2_txt);
+
+
+
 
         lnP1Tie.setVisibility(View.INVISIBLE);
         lnP2Tie.setVisibility(View.INVISIBLE);
@@ -266,6 +273,42 @@ public class MatchActivity extends AppCompatActivity {
 
         runMatch = true;
 
+
+    }
+
+    public void OnClickHelp(View v){
+
+        if(playMatch && runMatch) {
+            new LovelyStandardDialog(this, LovelyStandardDialog.ButtonLayout.VERTICAL)
+                    .setTopColorRes(R.color.orange)
+                    .setButtonsColorRes(R.color.orangel)
+                    .setIcon(R.drawable.ic_action_check)
+                    .setTitle("Demande d'intervention soigneur" +'\n')
+                    .setMessage("Voulez vous appeler un soigneur et mettre le match en pause ?")
+                    .setPositiveButton(android.R.string.ok, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+
+
+                            playMatch = false;
+                            playButton.setImageResource(R.drawable.ic_shortcut_play_arrow);
+                            pauseChrono.setBase(SystemClock.elapsedRealtime() - elapsedMillis);
+                            pauseChrono.start();
+
+                            winP1.setClickable(false);
+                            winP2.setClickable(false);
+
+                            faultP1.setClickable(false);
+                            faultP2.setClickable(false);
+
+                        }
+
+
+                    })
+                    .setNegativeButton(android.R.string.no, null)
+                    .show();
+
+        }
 
     }
 

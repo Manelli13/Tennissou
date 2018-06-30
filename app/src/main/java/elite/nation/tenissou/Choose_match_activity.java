@@ -39,8 +39,9 @@ public class Choose_match_activity extends AppCompatActivity implements ServerCa
 
     final ArrayList<Match> aMatch = new ArrayList<>();
     MatchAdapter adapMatch;
-
+    Arbitre currentArbitre;
     MatchWebAdapter adapWMatch;
+    SharedPreferences sp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,9 +58,16 @@ public class Choose_match_activity extends AppCompatActivity implements ServerCa
        // if (!ConfigAppParameters.isTest)
           //  requestMatch();
 
+        sp = getApplicationContext().getSharedPreferences("tennissou", 0);
+
+        if (sp.contains("arbitre")) {
+            Gson gson = new Gson();
+            String json = sp.getString("arbitre", "");
 
 
-
+            currentArbitre = gson.fromJson(json, Arbitre.class);
+            setTitle("Arbitre :  " +  currentArbitre.getNom() +" "+currentArbitre.getPrenom());
+        }
     }
 
     @Override
@@ -109,6 +117,10 @@ public class Choose_match_activity extends AppCompatActivity implements ServerCa
 
             });
         }
+
+
+
+
         requestMatch();
     }
 
@@ -127,6 +139,9 @@ public class Choose_match_activity extends AppCompatActivity implements ServerCa
 
             adapWMatch.notifyDataSetChanged();
             listView.setAdapter(adapWMatch);
+
+
+
 
             gif.setVisibility(View.VISIBLE);
 
@@ -155,12 +170,15 @@ public class Choose_match_activity extends AppCompatActivity implements ServerCa
                             JSONArray jsonArray = new JSONArray(response);
                             Log.i("requestmatch", jsonArray.toString());
 
+                            listMatch.clear();
                             for (int i = 0; i < jsonArray.length(); i++) {
                                 JSONObject jo = jsonArray.getJSONObject(i);
                                 Log.i("requestJo", jo.toString());
 
-                                listMatch.add(Match.fromJson(jo));
-                                Log.i("requestId", ""+listMatch.get(i).idMatch);
+                                Match match = Match.fromJson(jo);
+                                if (match.getIdArbitre() == currentArbitre.getIdArbitre())
+                                    listMatch.add(Match.fromJson(jo));
+
                             }
 
                             for (Match match : listMatch) {
