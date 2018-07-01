@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/match_ln"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -49,9 +50,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="10dp"
-
-        android:layout_weight="7"
+        android:background="@drawable/border_layout"
+        android:layout_weight="9"
         android:weightSum="100">
 
         <Space
@@ -64,7 +64,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_gravity="center"
-            android:layout_margin="7dp"
+            android:layout_margin="5dp"
             android:layout_weight="35"
             android:background="@drawable/round_corner"
             android:textAlignment="center"
@@ -78,7 +78,7 @@
             android:layout_marginLeft="10dp"
             android:layout_weight="20"
             android:adjustViewBounds="true"
-            android:background="@color/orangel"
+            android:background="@android:color/transparent"
             android:onClick="OnClickPlay"
             android:scaleType="fitCenter"
             android:src="@drawable/ic_shortcut_play_arrow" />
@@ -89,7 +89,7 @@
             android:layout_height="match_parent"
             android:layout_marginLeft="1dp"
             android:layout_weight="10"
-            android:background="@color/orangel"
+            android:background="@color/orange"
             android:gravity="center"
             android:text="+"
             android:textAlignment="center"
@@ -102,8 +102,8 @@
             android:layout_gravity="center"
             android:layout_marginRight="10dp"
             android:layout_marginTop="7dp"
+            android:background="@android:color/transparent"
             android:layout_weight="15"
-            android:background="@color/orangel"
             android:textAlignment="center"
             android:textColor="@color/white" />
 
@@ -115,7 +115,7 @@
         android:layout_height="0dp"
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="20dp"
         android:layout_weight="7"
         android:weightSum="100">
 
@@ -404,7 +404,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="5dp"
-        android:layout_weight="28"
+        android:layout_weight="27"
         android:weightSum="100">
 
 
@@ -452,7 +452,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="10dp"
-        android:layout_weight="28"
+        android:layout_weight="27"
         android:weightSum="100">
 
         <ImageButton

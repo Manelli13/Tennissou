@@ -176,7 +176,7 @@ public class Choose_match_activity extends AppCompatActivity implements ServerCa
                                 Log.i("requestJo", jo.toString());
 
                                 Match match = Match.fromJson(jo);
-                                if (match.getIdArbitre() == currentArbitre.getIdArbitre())
+
                                     listMatch.add(Match.fromJson(jo));
 
                             }
@@ -292,14 +292,17 @@ public class Choose_match_activity extends AppCompatActivity implements ServerCa
             j2.add(result.get(1));
         }
 
-        Match match = new Match(listMatch.get((int)matchId -1), j1, j2);
+        if (listMatch.get((int)matchId -1).getIdArbitre() == currentArbitre.getIdArbitre() && listMatch.get((int)matchId -1).getEtatMatch().equals("En attente")) {
+            Match match = new Match(listMatch.get((int) matchId - 1), j1, j2);
 
-        aMatch.add(match);
+            aMatch.add(match);
 
-        adapWMatch = new MatchWebAdapter(this, aMatch);
-        adapWMatch.notifyDataSetChanged();
+            adapWMatch = new MatchWebAdapter(this, aMatch);
+            adapWMatch.notifyDataSetChanged();
 
-        listView.setAdapter(adapWMatch);
+            listView.setAdapter(adapWMatch);
+        }
+
 
         listView.setOnItemClickListener(new OnItemClickListener() {
             @Override

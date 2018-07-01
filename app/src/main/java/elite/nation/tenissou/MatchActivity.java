@@ -7,6 +7,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -34,7 +35,12 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+import static elite.nation.tenissou.ConfigAppParameters.ENCOURS;
+import static elite.nation.tenissou.ConfigAppParameters.PAUSE;
+import static elite.nation.tenissou.ConfigAppParameters.SOIN;
+import static elite.nation.tenissou.ConfigAppParameters.TERMINE;
 import static elite.nation.tenissou.ConfigAppParameters.isTest;
+import static java.lang.Math.round;
 
 public class MatchActivity extends AppCompatActivity {
 
@@ -50,6 +56,7 @@ public class MatchActivity extends AppCompatActivity {
     TextView topScoreP2Txt;
     TextView topJeuxTxt;
     TextView topJeuxP2Txt;
+    LinearLayout ln;
 
     TextView toolbarTxt;
     ImageView toolbarImb;
@@ -84,8 +91,13 @@ public class MatchActivity extends AppCompatActivity {
     int maxSet = 0;
     int count = -1;
 
-    final  int playerOne = 1;
-    final  int playerTwo = 2;
+    int countService = 1;
+
+    int serviceMiss1 = 0;
+    int serviceMiss2 = 0;
+
+    final int playerOne = 1;
+    final int playerTwo = 2;
 
     Match match;
 
@@ -100,20 +112,20 @@ public class MatchActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_match);
 
-        if(isTest) {
+        if (isTest) {
 
             SharedPreferences pref = getApplicationContext().getSharedPreferences("tennissou", 0);
             String val = "";
 
             //TODO recup max set
 
-            maxSet=3;
+            maxSet = 3;
 
             if (pref.contains("match")) {
                 Gson gson = new Gson();
                 String json = pref.getString("match", "");
 
-                Log.i("Match","json : "+ json);
+                Log.i("Match", "json : " + json);
 
 
                 match = gson.fromJson(json, Match.class);
@@ -123,26 +135,27 @@ public class MatchActivity extends AppCompatActivity {
 
 
             setTitle("Match : " + val);
-        }else{
+        } else {
 
             SharedPreferences pref = getApplicationContext().getSharedPreferences("tennissou", 0);
             String val = "";
 
             //TODO recup max set
 
-            maxSet=3;
 
             if (pref.contains("match")) {
                 Gson gson = new Gson();
                 String json = pref.getString("match", "");
 
-                Log.i("Match","json : "+ json);
+                Log.i("Match", "json : " + json);
 
                 match = gson.fromJson(json, Match.class);
 
-                val = match.ejoueur1.get(0).getNom() +" VS "+ match.ejoueur2.get(0).getNom() ;
+                val = match.ejoueur1.get(0).getNom() + " VS " + match.ejoueur2.get(0).getNom();
 
-                addWebJeux((int)match.getMatch().idMatch, 1, 1,0,false);
+                addWebJeux((int) match.getMatch().idMatch, 1, 1, 0, false);
+
+                getSet();
 
             } else
                 val = "";
@@ -154,9 +167,15 @@ public class MatchActivity extends AppCompatActivity {
 
         init();
 
+        if (match.getMatch().getTerrainMatch().equals("Terre battue"))
+            ln.setBackground(ContextCompat.getDrawable(getApplicationContext(), R.drawable.terre2));
+        if (match.getMatch().getTerrainMatch().equals("Gazon"))
+            ln.setBackground(ContextCompat.getDrawable(getApplicationContext(), R.drawable.stade));
+        if (match.getMatch().getTerrainMatch().equals("Dure"))
+            ln.setBackground(ContextCompat.getDrawable(getApplicationContext(), R.drawable.surfacedur));
     }
 
-    public void  init(){
+    public void init() {
 
 
         mainChrono = (Chronometer) findViewById(R.id.match_chronometer);
@@ -195,22 +214,20 @@ public class MatchActivity extends AppCompatActivity {
 
         tieBreakP1 = (TextView) findViewById(R.id.match_tieBreak_txt);
         tieBreakP2 = (TextView) findViewById(R.id.match_tieBreakP2_txt);
-
-
+        ln = (LinearLayout) findViewById(R.id.match_ln);
 
 
         lnP1Tie.setVisibility(View.INVISIBLE);
         lnP2Tie.setVisibility(View.INVISIBLE);
 
-        if(isTest){
+        if (isTest) {
 
             topNameTxt.setText(match.joueur.getNom());
             topNameP2Txt.setText(match.joueur2.getNom());
 
             bottomNameTxt.setText(match.joueur.getNom());
             bottomP2NameTxt.setText(match.joueur2.getNom());
-        }
-        else{
+        } else {
 
             topNameTxt.setText(match.ejoueur1.get(0).getNom());
             topNameP2Txt.setText(match.ejoueur2.get(0).getNom());
@@ -229,9 +246,11 @@ public class MatchActivity extends AppCompatActivity {
 
     }
 
-    public void OnClickPlay(View v){
+    public void OnClickPlay(View v) {
 
-        if(runMatch == false){
+        if (runMatch == false) {
+
+            changeEtatMatch(ENCOURS);
             mainChrono.start();
             mainChrono.setBase(SystemClock.elapsedRealtime());
             mainChrono.start();
@@ -243,8 +262,9 @@ public class MatchActivity extends AppCompatActivity {
             faultP2.setClickable(true);
         }
 
-        if(playMatch && runMatch){
+        if (playMatch && runMatch) {
             playMatch = false;
+            changeEtatMatch(PAUSE);
             playButton.setImageResource(R.drawable.ic_shortcut_play_arrow);
             pauseChrono.setBase(SystemClock.elapsedRealtime() - elapsedMillis);
             pauseChrono.start();
@@ -255,10 +275,10 @@ public class MatchActivity extends AppCompatActivity {
             faultP1.setClickable(false);
             faultP2.setClickable(false);
 
-        }else if (!playMatch && runMatch){
+        } else if (!playMatch && runMatch) {
             playMatch = true;
             pauseChrono.stop();
-
+            changeEtatMatch(ENCOURS);
             elapsedMillis = SystemClock.elapsedRealtime() - pauseChrono.getBase();
 
             playButton.setImageResource(R.drawable.ic_shortcut_pause);
@@ -276,19 +296,21 @@ public class MatchActivity extends AppCompatActivity {
 
     }
 
-    public void OnClickHelp(View v){
+    public void OnClickHelp(View v) {
 
-        if(playMatch && runMatch) {
+        if (playMatch && runMatch) {
             new LovelyStandardDialog(this, LovelyStandardDialog.ButtonLayout.VERTICAL)
                     .setTopColorRes(R.color.orange)
                     .setButtonsColorRes(R.color.orangel)
                     .setIcon(R.drawable.ic_action_check)
-                    .setTitle("Demande d'intervention soigneur" +'\n')
+                    .setTitle("Demande d'intervention soigneur" + '\n')
                     .setMessage("Voulez vous appeler un soigneur et mettre le match en pause ?")
                     .setPositiveButton(android.R.string.ok, new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
 
+
+                            changeEtatMatch(SOIN);
 
                             playMatch = false;
                             playButton.setImageResource(R.drawable.ic_shortcut_play_arrow);
@@ -313,40 +335,52 @@ public class MatchActivity extends AppCompatActivity {
     }
 
     // set addition les 2 + 1
-    public void OnClickWinP1(View v){
+    public void OnClickWinP1(View v) {
 
-    scoreCount(playerOne);
+        scoreCount(playerOne);
 
-
+        countService++;
 
 
     }
 
-    public void OnClickWinP2(View v){
+    public void OnClickWinP2(View v) {
 
         scoreCount(playerTwo);
+
+        countService++;
     }
 
-    public void OnClickFaultP1(View v){
+    public void OnClickFaultP1(View v) {
 
         String str = (String) topNameTxt.getText();
-        popup(str);
+        popup(str, 1);
 
     }
 
-    public void OnClickFaultP2(View v){
+    public void OnClickFaultP2(View v) {
 
         String str = (String) topNameP2Txt.getText();
-        popup(str);
+        popup(str, 2);
     }
 
-    public void popup(String str) {
+    public void popup(String str, final int i) {
+
 
         ArrayList<String> aList = new ArrayList<String>();
         aList.add("Directe");
+        aList.add("Service raté");
         aList.add("Filet");
         aList.add("Double fautes");
         aList.add("Faute de pied");
+
+        int idJoueur;
+        if (i == 1)
+            idJoueur = (int) match.ejoueur1.get(0).getIdJoueur();
+        else
+            idJoueur = (int) match.ejoueur2.get(0).getIdJoueur();
+
+        final int finalIdJoueur = idJoueur;
 
         new LovelyChoiceDialog(this)
                 .setTopColorRes(R.color.orangel)
@@ -356,14 +390,42 @@ public class MatchActivity extends AppCompatActivity {
                 .setItems(aList, new LovelyChoiceDialog.OnItemSelectedListener<String>() {
                     @Override
                     public void onItemSelected(int positions, String t) {
-                        Toast.makeText(getApplicationContext(), "positive clicked", Toast.LENGTH_SHORT).show();
+
+                        if (positions == 0)
+                            addStat(finalIdJoueur, "fauteDirecte");
+
+                        if (positions == 1) {
+                            if(i ==1) {
+                                serviceMiss1++;
+                                int is = ( (1-(serviceMiss1 / (countService / 2 ))) *1000);
+                                String service = is+"";
+                                addStat(finalIdJoueur, service);
+                            }
+                            else{
+                                serviceMiss2++;
+                                int is = ( (1-(serviceMiss2 / (countService / 2 ))) *1000);
+                                String service = is +"";
+                                addStat(finalIdJoueur, service);
+                            }
+
+                        }
+
+                        if (positions == 2)
+                            addStat(finalIdJoueur, "fillet");
+
+                        if (positions == 3)
+                            addStat(finalIdJoueur, "dfaute");
+
+                        if (positions == 4)
+                            addStat(finalIdJoueur, "pied");
+
                     }
                 })
                 .show();
     }
 
 
-    public void scoreCount(int player){
+    public void scoreCount(int player) {
 
         String setValuue;
         String scoreValue;
@@ -387,16 +449,16 @@ public class MatchActivity extends AppCompatActivity {
         scoreValue = topScoreTxt.getText().toString();
 
 
-        if(scoreValue == "A")
-            scoreValue = ""+41;
+        if (scoreValue == "A")
+            scoreValue = "" + 41;
 
         jeuxValue = topJeuxTxt.getText().toString();
 
         setP2Value = topSetScoreP2Txt.getText().toString();
         scoreP2Value = topScoreP2Txt.getText().toString();
 
-        if(scoreP2Value == "A")
-            scoreP2Value = ""+41;
+        if (scoreP2Value == "A")
+            scoreP2Value = "" + 41;
 
 
         jeuxP2Value = topJeuxP2Txt.getText().toString();
@@ -426,20 +488,18 @@ public class MatchActivity extends AppCompatActivity {
                 score += 15;
 
                 //+1 -> set 1 = 0 +1
-                addWebScore(set +setP2 +1, jeux + jeuxP2+1, playerOne, ""+score);
-            }
-
-            else if (score == 30) {
+                addWebScore(set + setP2 + 1, jeux + jeuxP2 + 1, playerOne, "" + score);
+            } else if (score == 30) {
                 score += 10;
-                addWebScore(set +setP2 +1, jeux + jeuxP2+1, playerOne, ""+score);
+                addWebScore(set + setP2 + 1, jeux + jeuxP2 + 1, playerOne, "" + score);
             }
 //Tie break
             else if (isTieB || (
                     jeux == 5
-                    && jeuxP2 == 6
-                    && ((score == 40 && scoreP2 < 40) || score == 41)
-                    && !(set == maxSet-1 && setP2 == maxSet-1 )
-                    )
+                            && jeuxP2 == 6
+                            && ((score == 40 && scoreP2 < 40) || score == 41)
+                            && !(set == maxSet - 1 && setP2 == maxSet - 1)
+            )
                     )
 
             {
@@ -456,93 +516,88 @@ public class MatchActivity extends AppCompatActivity {
                 lnP2Tie.setVisibility(View.VISIBLE);
                 lnP2Score.setVisibility(View.INVISIBLE);
 
-               if((tieP1 - tieP2)  >= 1 && tieP1 > 5  && isFirst){
+                if ((tieP1 - tieP2) >= 1 && tieP1 > 5 && isFirst) {
 
-                   score = 0;
-                   scoreP2 = 0;
-                   tieP1++;
-                   addWebTie((int)match.getMatch().idMatch,set + setP2 + 1, playerOne,tieP1,true);
-                   jeux = 0;
-                   jeuxP2 = 0;
-                   tieP1 = 0;
-                   tieP2 = 0;
-                   count = -1;
-                   set++;
+                    score = 0;
+                    scoreP2 = 0;
+                    tieP1++;
+                    addWebTie((int) match.getMatch().idMatch, set + setP2 + 1, playerOne, tieP1, true);
+                    jeux = 0;
+                    jeuxP2 = 0;
+                    tieP1 = 0;
+                    tieP2 = 0;
+                    count = -1;
+                    set++;
 
-                   updateWebSet(match.getMatch().idMatch,playerOne);
-                   addWebJeux((int) match.getMatch().idMatch, set + setP2 +1,1, playerOne,false);
+                    updateWebSet(match.getMatch().idMatch, playerOne);
+                    addWebJeux((int) match.getMatch().idMatch, set + setP2 + 1, 1, playerOne, false);
 
-                   isFirst = false;
-                   isTieB = false;
-                   lnP1Tie.setVisibility(View.INVISIBLE);
-                   lnP1Score.setVisibility(View.VISIBLE);
+                    isFirst = false;
+                    isTieB = false;
+                    lnP1Tie.setVisibility(View.INVISIBLE);
+                    lnP1Score.setVisibility(View.VISIBLE);
 
-                   lnP2Tie.setVisibility(View.INVISIBLE);
-                   lnP2Score.setVisibility(View.VISIBLE);
-               }
-
-                else if (isFirst){
-                   count++;
-                   tieP1++;
-                   addWebTie((int)match.getMatch().idMatch,set + setP2 + 1, playerOne,tieP1,true);
+                    lnP2Tie.setVisibility(View.INVISIBLE);
+                    lnP2Score.setVisibility(View.VISIBLE);
+                } else if (isFirst) {
+                    count++;
+                    tieP1++;
+                    addWebTie((int) match.getMatch().idMatch, set + setP2 + 1, playerOne, tieP1, true);
 
 
-                   if(count % 2 == 0){
+                    if (count % 2 == 0) {
 
-                       if(serviceP2.getVisibility() == View.VISIBLE) {
-                           serviceP2.setVisibility(View.INVISIBLE);
-                           service.setVisibility(View.VISIBLE);
-                           isServiceP1 = true;
-                       }
-                       else{
+                        if (serviceP2.getVisibility() == View.VISIBLE) {
+                            serviceP2.setVisibility(View.INVISIBLE);
+                            service.setVisibility(View.VISIBLE);
+                            isServiceP1 = true;
+                        } else {
 
-                           serviceP2.setVisibility(View.VISIBLE);
-                           service.setVisibility(View.INVISIBLE);
-                           isServiceP1 = false;
-                       }
-                   }
-                }else{
-                   isFirst = true;
-                   isServiceP1 = true;
-                   addWebTie((int)match.getMatch().idMatch,set + setP2 + 1, 0,0,false);
-                   serviceP2.setVisibility(View.INVISIBLE);
-                   service.setVisibility(View.VISIBLE);
+                            serviceP2.setVisibility(View.VISIBLE);
+                            service.setVisibility(View.INVISIBLE);
+                            isServiceP1 = false;
+                        }
+                    }
+                } else {
+                    isFirst = true;
+                    isServiceP1 = true;
+                    addWebTie((int) match.getMatch().idMatch, set + setP2 + 1, 0, 0, false);
+                    serviceP2.setVisibility(View.INVISIBLE);
+                    service.setVisibility(View.VISIBLE);
 
-               }
+                }
 
             }
             // cas gagnant set p1
-            else if (((score == 40 && scoreP2 < 40) || score == 41) && jeux >= 5 && (jeux - jeuxP2) >= 1 ) {
+            else if (((score == 40 && scoreP2 < 40) || score == 41) && jeux >= 5 && (jeux - jeuxP2) >= 1) {
                 score = 0;
                 scoreP2 = 0;
                 jeux = 0;
                 jeuxP2 = 0;
                 set++;
-                updateWebSet(match.getMatch().idMatch,playerOne);
-                addWebJeux((int) match.getMatch().idMatch, set + setP2 +1,1, playerOne,false);
+                updateWebSet(match.getMatch().idMatch, playerOne);
+                addWebJeux((int) match.getMatch().idMatch, set + setP2 + 1, 1, playerOne, false);
 
-               if(isServiceP1 == true){
-                   isServiceP1 = false;
-                   service.setVisibility(View.INVISIBLE);
-                   serviceP2.setVisibility(View.VISIBLE);
-               }
-               else{
-
-                   isServiceP1 = true;
-                   service.setVisibility(View.VISIBLE);
-                   serviceP2.setVisibility(View.INVISIBLE);
-               }
-
-            }else if (score == 40 && scoreP2 < 40 /*&& jeux < 6 */ ) {
-                score = 0;
-                scoreP2 = 0;
-
-                if(isServiceP1 == true){
+                if (isServiceP1 == true) {
                     isServiceP1 = false;
                     service.setVisibility(View.INVISIBLE);
                     serviceP2.setVisibility(View.VISIBLE);
+                } else {
+
+                    isServiceP1 = true;
+                    service.setVisibility(View.VISIBLE);
+                    serviceP2.setVisibility(View.INVISIBLE);
                 }
-                else{
+
+            } else if (score == 40 && scoreP2 < 40 /*&& jeux < 6 */) {
+                score = 0;
+                scoreP2 = 0;
+
+                if (isServiceP1 == true) {
+                    isServiceP1 = false;
+                    service.setVisibility(View.INVISIBLE);
+                    serviceP2.setVisibility(View.VISIBLE);
+                } else {
 
                     isServiceP1 = true;
                     service.setVisibility(View.VISIBLE);
@@ -551,26 +606,24 @@ public class MatchActivity extends AppCompatActivity {
 
                 jeux++;
 
-                addWebJeux((int)match.getMatch().idMatch,set + setP2 + 1,jeux+ jeuxP2 + 1, playerOne, true);
+                addWebJeux((int) match.getMatch().idMatch, set + setP2 + 1, jeux + jeuxP2 + 1, playerOne, true);
 
 
-            }else if(score == 40 && scoreP2 == 40){
+            } else if (score == 40 && scoreP2 == 40) {
                 score = 41;
-                addWebScore(set +setP2+1, jeux + jeuxP2+1, playerOne, ""+score);
-            }else if(score == 40 && scoreP2 == 41){
+                addWebScore(set + setP2 + 1, jeux + jeuxP2 + 1, playerOne, "" + score);
+            } else if (score == 40 && scoreP2 == 41) {
                 scoreP2 = 40;
-                addWebScore(set +setP2 +1, jeux + jeuxP2+1, playerTwo, ""+scoreP2);
-            }
-            else if(score == 41 && scoreP2 == 40){
+                addWebScore(set + setP2 + 1, jeux + jeuxP2 + 1, playerTwo, "" + scoreP2);
+            } else if (score == 41 && scoreP2 == 40) {
                 score = 0;
                 scoreP2 = 0;
 
-                if(isServiceP1 == true){
+                if (isServiceP1 == true) {
                     isServiceP1 = false;
                     service.setVisibility(View.INVISIBLE);
                     serviceP2.setVisibility(View.VISIBLE);
-                }
-                else{
+                } else {
 
                     isServiceP1 = true;
                     service.setVisibility(View.VISIBLE);
@@ -578,7 +631,7 @@ public class MatchActivity extends AppCompatActivity {
                 }
 
                 jeux++;
-                addWebJeux((int)match.getMatch().idMatch,set + setP2 + 1,jeux+ jeuxP2 + 1, playerOne, true);
+                addWebJeux((int) match.getMatch().idMatch, set + setP2 + 1, jeux + jeuxP2 + 1, playerOne, true);
             }
 
 // Cas gagnant p2
@@ -586,13 +639,10 @@ public class MatchActivity extends AppCompatActivity {
 
             if (scoreP2 < 30) {
                 scoreP2 += 15;
-                addWebScore(set + setP2  +1, jeux + jeuxP2+1, playerTwo, ""+scoreP2);
-            }
-
-
-            else if (scoreP2 == 30) {
+                addWebScore(set + setP2 + 1, jeux + jeuxP2 + 1, playerTwo, "" + scoreP2);
+            } else if (scoreP2 == 30) {
                 scoreP2 += 10;
-                addWebScore(set + setP2 +1, jeux + jeuxP2+1, playerTwo, ""+scoreP2);
+                addWebScore(set + setP2 + 1, jeux + jeuxP2 + 1, playerTwo, "" + scoreP2);
             }
 
 
@@ -620,26 +670,25 @@ public class MatchActivity extends AppCompatActivity {
                 if ((tieP2 - tieP1) >= 1 && tieP2 > 5 && isFirst) {
 
                     tieP2++;
-                    addWebTie((int)match.getMatch().idMatch,set + setP2 + 1, playerTwo,tieP2,true);
+                    addWebTie((int) match.getMatch().idMatch, set + setP2 + 1, playerTwo, tieP2, true);
                     score = 0;
                     scoreP2 = 0;
                     jeux = 0;
                     jeuxP2 = 0;
                     tieP1 = 0;
                     tieP2 = 0;
-                    count= -1;
+                    count = -1;
                     setP2++;
-                    updateWebSet(match.getMatch().idMatch,playerTwo);
-                    addWebJeux((int) match.getMatch().idMatch, set + setP2+1,1 , playerTwo,false);
+                    updateWebSet(match.getMatch().idMatch, playerTwo);
+                    addWebJeux((int) match.getMatch().idMatch, set + setP2 + 1, 1, playerTwo, false);
                     isFirst = false;
                     isTieB = false;
 
-                    if(isServiceP1 == true){
+                    if (isServiceP1 == true) {
                         isServiceP1 = false;
                         service.setVisibility(View.INVISIBLE);
                         serviceP2.setVisibility(View.VISIBLE);
-                    }
-                    else{
+                    } else {
 
                         isServiceP1 = true;
                         service.setVisibility(View.VISIBLE);
@@ -651,31 +700,28 @@ public class MatchActivity extends AppCompatActivity {
 
                     lnP2Tie.setVisibility(View.INVISIBLE);
                     lnP2Score.setVisibility(View.VISIBLE);
-                }
-
-                else if (isFirst){
+                } else if (isFirst) {
 
                     tieP2++;
                     count++;
-                    addWebTie((int)match.getMatch().idMatch,set + setP2 + 1, playerTwo,tieP2,true);
-                    if(count % 2 == 0){
+                    addWebTie((int) match.getMatch().idMatch, set + setP2 + 1, playerTwo, tieP2, true);
+                    if (count % 2 == 0) {
 
-                        if(serviceP2.getVisibility() == View.VISIBLE) {
+                        if (serviceP2.getVisibility() == View.VISIBLE) {
                             serviceP2.setVisibility(View.INVISIBLE);
                             service.setVisibility(View.VISIBLE);
-                            isServiceP1=true;
-                        }
-                        else{
+                            isServiceP1 = true;
+                        } else {
 
                             serviceP2.setVisibility(View.VISIBLE);
                             service.setVisibility(View.INVISIBLE);
-                            isServiceP1=false;
+                            isServiceP1 = false;
                         }
                     }
 
-                }else{
+                } else {
                     isFirst = true;
-                    addWebTie((int)match.getMatch().idMatch,set + setP2 + 1, playerTwo,tieP2,false);
+                    addWebTie((int) match.getMatch().idMatch, set + setP2 + 1, playerTwo, tieP2, false);
                     isServiceP1 = false;
                     serviceP2.setVisibility(View.VISIBLE);
                     service.setVisibility(View.INVISIBLE);
@@ -683,21 +729,20 @@ public class MatchActivity extends AppCompatActivity {
 
             }
             //gagnant set
-            else if (((scoreP2 == 40 && score < 40) || scoreP2 == 41) &&  jeuxP2 >= 5 && (jeuxP2 - jeux) >= 1) {
+            else if (((scoreP2 == 40 && score < 40) || scoreP2 == 41) && jeuxP2 >= 5 && (jeuxP2 - jeux) >= 1) {
                 score = 0;
                 scoreP2 = 0;
                 jeuxP2 = 0;
                 jeux = 0;
                 setP2++;
-                updateWebSet(match.getMatch().idMatch,playerTwo);
-                addWebJeux((int) match.getMatch().idMatch, set + setP2+1,1 , playerTwo,false);
+                updateWebSet(match.getMatch().idMatch, playerTwo);
+                addWebJeux((int) match.getMatch().idMatch, set + setP2 + 1, 1, playerTwo, false);
 
-                if(isServiceP1 == true){
+                if (isServiceP1 == true) {
                     isServiceP1 = false;
                     service.setVisibility(View.INVISIBLE);
                     serviceP2.setVisibility(View.VISIBLE);
-                }
-                else{
+                } else {
 
                     isServiceP1 = true;
                     service.setVisibility(View.VISIBLE);
@@ -708,48 +753,45 @@ public class MatchActivity extends AppCompatActivity {
                 score = 0;
                 scoreP2 = 0;
                 jeuxP2++;
-                addWebJeux((int)match.getMatch().idMatch,set + setP2 + 1,jeux+ jeuxP2 + 1, playerTwo, true);
+                addWebJeux((int) match.getMatch().idMatch, set + setP2 + 1, jeux + jeuxP2 + 1, playerTwo, true);
 
-                if(isServiceP1 == true){
+                if (isServiceP1 == true) {
                     isServiceP1 = false;
                     service.setVisibility(View.INVISIBLE);
                     serviceP2.setVisibility(View.VISIBLE);
-                }
-                else{
+                } else {
 
                     isServiceP1 = true;
                     service.setVisibility(View.VISIBLE);
                     serviceP2.setVisibility(View.INVISIBLE);
                 }
 
-            }else if(score == 40 && scoreP2 == 40){
+            } else if (score == 40 && scoreP2 == 40) {
                 scoreP2 = 41;
-                addWebScore(set+ setP2 +1, jeux+1, playerTwo, ""+scoreP2);
-            }else if(scoreP2 == 40 && score == 41){
+                addWebScore(set + setP2 + 1, jeux + 1, playerTwo, "" + scoreP2);
+            } else if (scoreP2 == 40 && score == 41) {
                 score = 40;
-                addWebScore(set+ setP2 +1, jeux+1, playerOne, ""+score);
-            }
-            else if(score == 40 && scoreP2 == 41){
+                addWebScore(set + setP2 + 1, jeux + 1, playerOne, "" + score);
+            } else if (score == 40 && scoreP2 == 41) {
                 score = 0;
                 scoreP2 = 0;
 
-                if(isServiceP1 == true){
+                if (isServiceP1 == true) {
                     isServiceP1 = false;
                     service.setVisibility(View.INVISIBLE);
                     serviceP2.setVisibility(View.VISIBLE);
-                }
-                else{
+                } else {
 
                     isServiceP1 = true;
                     service.setVisibility(View.VISIBLE);
                     serviceP2.setVisibility(View.INVISIBLE);
                 }
                 jeuxP2++;
-                addWebJeux((int)match.getMatch().idMatch,set + setP2 + 1,jeux+ jeuxP2 + 1, playerTwo, true);
+                addWebJeux((int) match.getMatch().idMatch, set + setP2 + 1, jeux + jeuxP2 + 1, playerTwo, true);
             }
         }
 //fin du match a config
-        if(set == 3){
+        if (set == 3) {
 
             // Read your drawable from somewhere
             Drawable dr = getResources().getDrawable(R.drawable.win);
@@ -762,19 +804,18 @@ public class MatchActivity extends AppCompatActivity {
                     .setButtonsColorRes(R.color.orangel)
                     .setIcon(d)
                     .setTitle("Match gagné !" + '\n')
-                    .setMessage("Gagnant : " + topNameTxt.getText().toString() )
+                    .setMessage("Gagnant : " + topNameTxt.getText().toString())
                     .setPositiveButton(android.R.string.ok, new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
+                            changeEtatMatch(TERMINE);
                             finish();
                         }
                     })
 
                     .show();
 
-        }
-        else if (setP2 == maxSet)
-        {
+        } else if (setP2 == maxSet) {
             Drawable dr = getResources().getDrawable(R.drawable.win);
             Bitmap bitmap = ((BitmapDrawable) dr).getBitmap();
 // Scale it to 50 x 50
@@ -785,10 +826,11 @@ public class MatchActivity extends AppCompatActivity {
                     .setButtonsColorRes(R.color.orangel)
                     .setIcon(d)
                     .setTitle("Match gagné !" + '\n')
-                    .setMessage("Gagnant : " + topNameP2Txt.getText().toString() )
+                    .setMessage("Gagnant : " + topNameP2Txt.getText().toString())
                     .setPositiveButton(android.R.string.ok, new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
+                            changeEtatMatch(TERMINE);
                             finish();
                         }
                     })
@@ -800,45 +842,41 @@ public class MatchActivity extends AppCompatActivity {
 
         if (score == 41) {
             topScoreTxt.setText("A");
-            scoreMainTxt.setText("A" +" : "+ 40);
-        }
-        else {
+            scoreMainTxt.setText("A" + " : " + 40);
+        } else {
             topScoreTxt.setText("" + score);
-            scoreMainTxt.setText(score +" : "+ scoreP2);
+            scoreMainTxt.setText(score + " : " + scoreP2);
         }
 
         if (scoreP2 == 41) {
             topScoreP2Txt.setText("A");
-            scoreMainTxt.setText(40 +" : "+ "A");
-        }
-        else if(score < 41  ) {
+            scoreMainTxt.setText(40 + " : " + "A");
+        } else if (score < 41) {
             topScoreP2Txt.setText("" + scoreP2);
-            scoreMainTxt.setText(score +" : "+ scoreP2);
+            scoreMainTxt.setText(score + " : " + scoreP2);
         }
 
 
-        tieBreakP1.setText(""+tieP1);
-        tieBreakP2.setText(""+tieP2);
+        tieBreakP1.setText("" + tieP1);
+        tieBreakP2.setText("" + tieP2);
 
-        topJeuxTxt.setText(""+jeux);
-        topJeuxP2Txt.setText(""+jeuxP2);
+        topJeuxTxt.setText("" + jeux);
+        topJeuxP2Txt.setText("" + jeuxP2);
 
-        topSetScoreTxt.setText(""+set);
-        topSetScoreP2Txt.setText(""+setP2);
-
+        topSetScoreTxt.setText("" + set);
+        topSetScoreP2Txt.setText("" + setP2);
 
 
     }
 
 //TODO WEBSERVICE
 
-    public void updWebTie(int matchid, int set, int joueur,int score){
-
+    public void updWebTie(int matchid, int set, int joueur, int score) {
 
 
         final ArrayList<Joueur> lJoueur = new ArrayList<Joueur>();
         RequestQueue queue = Volley.newRequestQueue(this);
-        String url = ConfigAppParameters.URL + "/match/"+matchid+"/"+set+"/joueur"+joueur+"/"+score;
+        String url = ConfigAppParameters.URL + "/match/" + matchid + "/" + set + "/joueur" + joueur + "/" + score;
 
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.PUT, url,
@@ -862,11 +900,11 @@ public class MatchActivity extends AppCompatActivity {
 
     }
 
-    public void addWebTie(final int matchid, final int set, final int player, final int score, final boolean isWin ){
+    public void addWebTie(final int matchid, final int set, final int player, final int score, final boolean isWin) {
 
 
         if (isWin)
-            updWebTie( matchid,  set,  player, score);
+            updWebTie(matchid, set, player, score);
         else {
             final ArrayList<Joueur> lJoueur = new ArrayList<Joueur>();
             RequestQueue queue = Volley.newRequestQueue(this);
@@ -896,11 +934,11 @@ public class MatchActivity extends AppCompatActivity {
     }
 
 
-    public void updateWebSet(long match, int joueur){
+    public void updateWebSet(long match, int joueur) {
 
         final ArrayList<Joueur> lJoueur = new ArrayList<Joueur>();
         RequestQueue queue = Volley.newRequestQueue(this);
-        String url = ConfigAppParameters.URL + "/match/"+match+"/joueur"+joueur;
+        String url = ConfigAppParameters.URL + "/match/" + match + "/joueur" + joueur;
 
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.PUT, url,
@@ -923,13 +961,12 @@ public class MatchActivity extends AppCompatActivity {
 
     }
 
-    public void updWebJeux(int matchid, int set, int joueur,int jeux){
-
+    public void updWebJeux(int matchid, int set, int joueur, int jeux) {
 
 
         final ArrayList<Joueur> lJoueur = new ArrayList<Joueur>();
         RequestQueue queue = Volley.newRequestQueue(this);
-        String url = ConfigAppParameters.URL + "/match/"+matchid+"/"+set+"/joueur"+joueur;
+        String url = ConfigAppParameters.URL + "/match/" + matchid + "/" + set + "/joueur" + joueur;
 
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.PUT, url,
@@ -953,13 +990,12 @@ public class MatchActivity extends AppCompatActivity {
 
     }
 
-    public void addWebJeux(final int matchid, final int set, final int idJeu, final int player, final boolean isWin ){
-
+    public void addWebJeux(final int matchid, final int set, final int idJeu, final int player, final boolean isWin) {
 
 
         final ArrayList<Joueur> lJoueur = new ArrayList<Joueur>();
         RequestQueue queue = Volley.newRequestQueue(this);
-        String url = ConfigAppParameters.URL + "/match/"+matchid+"/"+set+"/"+idJeu+"/createJeu";
+        String url = ConfigAppParameters.URL + "/match/" + matchid + "/" + set + "/" + idJeu + "/createJeu";
 
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
@@ -968,7 +1004,7 @@ public class MatchActivity extends AppCompatActivity {
                     public void onResponse(String response) {
                         // Display the first 500 characters of the response string.
                         if (isWin)
-                            updWebJeux( matchid,  set,  player, idJeu);
+                            updWebJeux(matchid, set, player, idJeu);
 
                     }
                 }, new Response.ErrorListener() {
@@ -985,12 +1021,12 @@ public class MatchActivity extends AppCompatActivity {
 
     }
 
-
-    public void addWebScore(int set, int idJeu, int joueur, String score){
+    // etat : En pause; Pause soin; En cours; En attente; Terminé
+    public void changeEtatMatch(String etatMatch) {
 
         final ArrayList<Joueur> lJoueur = new ArrayList<Joueur>();
         RequestQueue queue = Volley.newRequestQueue(this);
-        String url = ConfigAppParameters.URL + "/match/"+match.getMatch().idMatch+"/"+set+"/"+idJeu+"/joueur"+joueur+"/"+score;
+        String url = ConfigAppParameters.URL + "/match/" + match.getMatch().idMatch + "/etat/" + etatMatch;
 
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.PUT, url,
@@ -1012,11 +1048,70 @@ public class MatchActivity extends AppCompatActivity {
         requestQueue.add(stringRequest);
     }
 
+    public void addWebScore(int set, int idJeu, int joueur, String score) {
+
+        final ArrayList<Joueur> lJoueur = new ArrayList<Joueur>();
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String url = ConfigAppParameters.URL + "/match/" + match.getMatch().idMatch + "/" + set + "/" + idJeu + "/joueur" + joueur + "/" + score;
+
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.PUT, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // Display the first 500 characters of the response string.
+
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                // Anything you want
+                Log.i("requestmatchError", error.getMessage());
+            }
+        });
+
+        RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
+        requestQueue.add(stringRequest);
+    }
+
+    public void getSet() {
+
+        final int[] set = new int[1];
+        final ArrayList<Joueur> lJoueur = new ArrayList<Joueur>();
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String url = ConfigAppParameters.URL + "/tournoi/match/" + match.getMatch().idMatch;
+
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // Display the first 500 characters of the response string.
+
+
+                        maxSet = Integer.parseInt(response);
+
+
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                // Anything you want
+                Log.i("requestmatchError", error.getMessage());
+            }
+        });
+
+        RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
+        requestQueue.add(stringRequest);
+
+
+    }
+
     public void requestJoueur(final long matchId) {
 
         final ArrayList<Joueur> lJoueur = new ArrayList<Joueur>();
         RequestQueue queue = Volley.newRequestQueue(this);
-        String url = ConfigAppParameters.URL + "/matchs/"+matchId+"/joueurs";
+        String url = ConfigAppParameters.URL + "/matchs/" + matchId + "/joueurs";
 
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
@@ -1055,6 +1150,32 @@ public class MatchActivity extends AppCompatActivity {
         RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
         requestQueue.add(stringRequest);
 
+
+    }
+
+    public void addStat(int joueur, final String stat) {
+
+        final ArrayList<Joueur> lJoueur = new ArrayList<Joueur>();
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String url = ConfigAppParameters.URL + "/stat/" + match.getMatch().idMatch + "/" + joueur + "/" + stat;
+
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.PUT, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                // Anything you want
+                Log.i("requestmatchError", error.getMessage());
+            }
+        });
+
+        RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
+        requestQueue.add(stringRequest);
 
 
     }

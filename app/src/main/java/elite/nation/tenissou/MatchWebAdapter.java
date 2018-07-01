@@ -69,7 +69,13 @@ public class MatchWebAdapter extends BaseAdapter {
             holder.tv.setText(mAMatch.get(position).ejoueur1.get(0).getNom() + "  VS  " + mAMatch.get(position).ejoueur2.get(0).getNom());
 
         //TODO changer limage celon type terrain
-        holder.img.setImageResource(R.drawable.stade);
+        if(mAMatch.get(position).getMatch().getTerrainMatch().equals("Gazon"))
+            holder.img.setImageResource(R.drawable.stade);
+
+        else if(mAMatch.get(position).getMatch().getTerrainMatch().equals("Terre battue"))
+            holder.img.setImageResource(R.drawable.terre);
+        else if(mAMatch.get(position).getMatch().getTerrainMatch().equals("Dure"))
+            holder.img.setImageResource(R.drawable.surfacedur);
 
       /*  rowView.setOnClickListener(new View.OnClickListener() {
             @Override
